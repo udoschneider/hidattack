@@ -27,7 +27,7 @@ defmodule App.MixProject do
 
       # {:hidraw, git: "https://github.com/krodelin/hidraw.git", branch: "develop"},
       {:hidraw, path: "../../hidraw"},
-      {:hidg, path: "../../hidg"},
+      # {:hidraw, "~> 0.2.1"},
 
       {:usb_gadget, git: "https://github.com/nerves-project/usb_gadget.git"},
     ]
