@@ -34,6 +34,12 @@ defmodule App.AttackProxy do
     {:noreply, state}
   end
 
+  def handle_info({:hidg, _hidg_path, {:input, report}}, %{hidraw: hidraw} = state) when is_binary(report) do
+    Logger.debug(fn -> "#{__MODULE__} input (#{byte_size(report)} Bytes: #{inspect(report)}" end)
+    Hidraw.output(hidraw, report)
+    {:noreply, state}
+  end
+
   def handle_info({:hidg, _hidg_path, {:exit, exit_code}}, state) do
     {:stop, {:hidg, :exit, exit_code}}
   end
