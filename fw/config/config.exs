@@ -55,9 +55,9 @@ config :nerves_firmware_ssh,
 node_name = if Mix.env() != :prod, do: "fw"
 
 config :nerves_init_gadget,
-  ifname: "usb0",
-  address_method: :dhcpd,
-  mdns_domain: "nerves.local",
+  ifname: "eth0",
+  address_method: :dhcp,
+  mdns_domain: "hidattack.local",
   node_name: node_name,
   node_host: :mdns_domain
 
