@@ -8,7 +8,7 @@ defmodule App.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      # {App.AttackProxy, []}
+      {App.AttackProxy, []}
       # Starts a worker by calling: App.Worker.start_link(arg)
       # {App.Worker, arg}
     ]

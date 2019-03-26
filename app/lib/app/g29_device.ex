@@ -19,10 +19,12 @@ defmodule App.G29Device do
   ################################################################
 
   def init(args) do
+    Logger.debug(fn -> "#{__MODULE__}.init = #{inspect(self())}" end)
+    Process.flag :trap_exit, true
     callback = Keyword.get(args, :callback, nil)
-    with  {:find_g29, {:ok, path}} <- {:find_g29, find_g29_path()},
-          {:start_hidraw, {:ok, hidraw}} <- {:start_hidraw, start_hidraw(path)} do
-      {:ok, %{hidraw: hidraw, callback: callback}}
+    path = Keyword.get(args, :path, "/dev/hidraw0")
+    with {:start_hidraw, {:ok, hidraw}} <- {:start_hidraw, start_hidraw(path)} do
+      {:ok, %{hidraw: hidraw, callback: callback, path: path}}
     else
       {failed_step, {:error, reason}} -> {:stop, {failed_step, reason}}
     end
@@ -32,37 +34,48 @@ defmodule App.G29Device do
     {:reply, Hidraw.descriptor(state.hidraw), state}
   end
 
-  def handle_cast({:output, bytes},  state) do
-    Hidraw.output(state.hidraw, bytes)
+  def handle_cast({:output, bytes}, state) do
+    Hidraw.output(state.hidraw, <<0, bytes::binary>>)
     {:noreply, state}
   end
 
   def handle_info({:hidraw, _hidraw_path, {:input_report, report}}, state) when is_binary(report) do
-    Logger.debug(fn -> "#{__MODULE__} IN (#{byte_size(report)} Bytes: #{inspect(report)})" end)
     send(state.callback, {:hidin, report})
     {:noreply, state}
   end
 
-  def handle_info({:hidraw, _hidraw_path, {:error, :closed}}, _state) do
+  def handle_info(:reconnect, %{path: path} = state)   do
+    Logger.error(fn -> "#{__MODULE__} :reconnect" end)
+    with {:ok, hidraw} <- start_hidraw(path) do
+      Logger.debug(fn -> "#{__MODULE__} Reconnect succeded" end)
+      {:noreply, %{state | hidraw: hidraw}}
+    else
+      _ ->
+        send_reconnect()
+        {:noreply, state}
+    end
+  end
+
+  def handle_info({:hidraw, _hidraw_path, {:error, :closed}}, state) do
     Logger.error(fn -> "#{__MODULE__} {:error, :closed}" end)
-    {:stop, {:error, :closed}}
+    send_reconnect()
+    {:noreply, %{state | hidraw: nil}}
+  end
+
+  def handle_info({:EXIT, from, reason}, state) do
+    Logger.error(fn -> "#{__MODULE__} :EXIT #{inspect(from)} #{inspect(reason)}" end)
+    {:noreply, state}
   end
 
   ################################################################
 
-  defp find_g29_path() do
-    with {path, _} <- Enum.find(Hidraw.enumerate(), nil, &match_g29/1) do
-      {:ok, path}
-    else
-      _ -> {:error, :enotfound}
-    end
-  end
-
-  defp match_g29({_, string}) do
-    string =~ "Logitech"
-  end
-
   defp start_hidraw(path) do
+    Logger.debug(fn -> "#{__MODULE__}.start_hidraw(#{path})" end)
     Hidraw.start_link(path)
   end
+
+  defp send_reconnect() do
+    Process.send_after(self(), :reconnect, 1000)
+  end
+
 end
