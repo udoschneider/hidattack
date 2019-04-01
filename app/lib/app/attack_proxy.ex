@@ -17,6 +17,11 @@ defmodule App.AttackProxy do
     GenServer.start_link(__MODULE__, args, opts ++ [name: __MODULE__])
   end
 
+  def clear() do
+    wiggle(1, 0)
+    mirror(0, 1)
+  end
+
   def wiggle(f, a) do
     GenServer.cast(__MODULE__, {:wiggle, f, a})
   end
