@@ -15,8 +15,8 @@ config :nerves, :firmware, rootfs_overlay: "rootfs_overlay"
 # involved with firmware updates.
 
 config :shoehorn,
-  init: [:nerves_runtime, :nerves_init_gadget],
-  app: Mix.Project.config()[:app]
+       init: [:nerves_runtime, :nerves_init_gadget],
+       app: Mix.Project.config()[:app]
 
 # Use Ringlogger as the logger backend and remove :console.
 # See https://hexdocs.pm/ring_logger/readme.html for more information on
@@ -37,15 +37,17 @@ keys =
   |> Enum.filter(&File.exists?/1)
 
 if keys == [],
-  do:
-    Mix.raise("""
-    No SSH public keys found in ~/.ssh. An ssh authorized key is needed to
-    log into the Nerves device and update firmware on it using ssh.
-    See your project's config.exs for this error message.
-    """)
+   do:
+     Mix.raise(
+       """
+       No SSH public keys found in ~/.ssh. An ssh authorized key is needed to
+       log into the Nerves device and update firmware on it using ssh.
+       See your project's config.exs for this error message.
+       """
+     )
 
 config :nerves_firmware_ssh,
-  authorized_keys: Enum.map(keys, &File.read!/1)
+       authorized_keys: Enum.map(keys, &File.read!/1)
 
 # Configure nerves_init_gadget.
 # See https://hexdocs.pm/nerves_init_gadget/readme.html for more information.
@@ -55,11 +57,11 @@ config :nerves_firmware_ssh,
 node_name = if Mix.env() != :prod, do: "fw"
 
 config :nerves_init_gadget,
-  ifname: "eth0",
-  address_method: :dhcp,
-  mdns_domain: "hidattack.local",
-  node_name: node_name,
-  node_host: :mdns_domain
+       ifname: "eth0",
+       address_method: :dhcp,
+       mdns_domain: "hidattack.local",
+       node_name: node_name,
+       node_host: :mdns_domain
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
