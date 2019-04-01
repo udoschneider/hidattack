@@ -17,6 +17,7 @@ defmodule UiWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/attack", PageController, :attack
   end
 
   # Other scopes may use custom stacks.
