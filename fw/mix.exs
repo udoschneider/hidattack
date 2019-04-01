@@ -57,7 +57,14 @@ defmodule Fw.MixProject do
       {:nerves_system_bbb, "~> 2.0", runtime: false, targets: :bbb},
       {:nerves_system_x86_64, "~> 1.6", runtime: false, targets: :x86_64},
 
-      {:hidattack_system_bbb, path: "../../hidattack_system_bbb", runtime: false, targets: :hidattack_bbb},
+      # {:hidattack_system_bbb, path: "../../hidattack_system_bbb", runtime: false, targets: :hidattack_bbb},
+      {
+        :hidattack_system_bbb,
+        git: "git@github.com:krodelin/hidattack_system_bbb.git",
+        tag: "v2.1.3-us1",
+        runtime: false,
+        targets: :hidattack_bbb
+      },
       {:ui, path: "../ui"},
     ]
   end
