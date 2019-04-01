@@ -14,7 +14,8 @@ defmodule App.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {App.Application, []}
     ]
   end
 
@@ -23,6 +24,12 @@ defmodule App.MixProject do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {
+        :hidraw,
+        git: "git@github.com:krodelin/hidraw.git",
+        tag: "v0.2.1-u1",
+        runtime: false
+      },
     ]
   end
 end
