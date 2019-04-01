@@ -12,25 +12,25 @@
     <!-- Example row of columns -->
     <div class="row">
       <div class="col-md-3">
-        <h2>Heading</h2>
-        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-        <p><a class="btn btn-secondary btn-lg" href="#" role="button">View details &raquo;</a></p>
+        <h2>Clear all</h2>
+        <p>Reset all HID hacks, clear IVI</p>
+        <p><a class="btn btn-success btn-lg" href="/attack?level=0" role="button">Clear</a></p>
       </div>
       <div class="col-md-3">
-        <h2>Heading</h2>
-        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-        <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+        <h2>Ransom Note</h2>
+        <p>Display Ransom Note on IVI</p>
+        <p><a class="btn btn-warning btn-lg" href="/attack?level=1" role="button">Ransom Note</a></p>
       </div>
       <div class="col-md-3">
-        <h2>Heading</h2>
-        <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-        <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+        <h2>Wiggle</h2>
+        <p>Display Wiggle Note on IVI, wiggle the steering wheel</p>
+        <p><a class="btn btn-warning btn-lg" href="/attack?level=2" role="button">Wiggle</a></p>
       </div>
-        <div class="col-md-3">
-          <h2>Heading</h2>
-          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-          <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
-        </div>
+      <div class="col-md-3">
+        <h2>Mirror</h2>
+        <p>Display Mirror Note on IVI, mirror the steering wheel</p>
+        <p><a class="btn btn-warning btn-lg" href="/attack?level=3" role="button">Mirror</a></p>
+      </div>
     </div>
 
     <hr>
