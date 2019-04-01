@@ -27,8 +27,7 @@ defmodule App.MixProject do
       {
         :hidraw,
         git: "git@github.com:krodelin/hidraw.git",
-        tag: "v0.2.1-u1",
-        runtime: false
+        tag: "v0.2.1-u1"
       },
       {:usb_gadget, git: "https://github.com/nerves-project/usb_gadget.git"},
     ]

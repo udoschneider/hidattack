@@ -73,6 +73,10 @@ config :ui, UiWeb.Endpoint,
 
 config :phoenix, :json_library, Jason
 
+config :app, App.AttackProxy, [
+  gadget: App.G29Gadget
+]
+
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 # Uncomment to use target specific configurations
