@@ -8,33 +8,29 @@
     </div>
   </div>
 
+
   <div class="container">
-    <!-- Example row of columns -->
-    <div class="row">
-      <div class="col-md-3">
-        <h2>Clear all</h2>
-        <p>Reset all HID hacks, clear IVI</p>
-        <p><a class="btn btn-success btn-lg" href="/attack?level=0" role="button">Clear</a></p>
+      <div class="row">
+        <a class="btn btn-success btn-lg btn-block" href="/attack?action=clear" role="button">Clear</a>
       </div>
-      <div class="col-md-3">
-        <h2>Ransom Note</h2>
-        <p>Display Ransom Note on IVI</p>
-        <p><a class="btn btn-warning btn-lg" href="/attack?level=1" role="button">Ransom Note</a></p>
+      <div class="row">
+        <a class="btn btn-warning btn-lg btn-block" href="/attack?action=ransom" role="button">Ransom Note</a>
       </div>
-      <div class="col-md-3">
-        <h2>Wiggle</h2>
-        <p>Display Wiggle Note on IVI, wiggle the steering wheel</p>
-        <p><a class="btn btn-warning btn-lg" href="/attack?level=2" role="button">Wiggle</a></p>
+      <div class="row">
+        <a class="btn btn-warning btn-lg btn-block" href="/attack?action=wiggle" role="button">Wiggle</a>
       </div>
-      <div class="col-md-3">
-        <h2>Mirror</h2>
-        <p>Display Mirror Note on IVI, mirror the steering wheel</p>
-        <p><a class="btn btn-warning btn-lg" href="/attack?level=3" role="button">Mirror</a></p>
+      <div class="row">
+        <a class="btn btn-warning btn-lg btn-block" href="/attack?action=mirror" role="button">Mirror</a>
       </div>
-    </div>
+  </div> <!-- /container -->
 
-    <hr>
-
+  <div class="container">
+      <div class="row">
+        <a class="btn btn-danger btn-lg btn-block" href="/attack?action=reboot_ivi" role="button">Reboot IVI</a>
+      </div>
+      <div class="row">
+        <a class="btn btn-danger btn-lg btn-block" href="/attack?action=reboot_hid" role="button">Reboot HID</a>
+      </div>
   </div> <!-- /container -->
 
 </main>
