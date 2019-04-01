@@ -58,6 +58,7 @@ defmodule Fw.MixProject do
       {:nerves_system_x86_64, "~> 1.6", runtime: false, targets: :x86_64},
 
       {:hidattack_system_bbb, path: "../../hidattack_system_bbb", runtime: false, targets: :hidattack_bbb},
+      {:ui, path: "../ui"},
     ]
   end
 end
