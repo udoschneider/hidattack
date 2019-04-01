@@ -30,6 +30,7 @@ defmodule App.MixProject do
         tag: "v0.2.1-u1",
         runtime: false
       },
+      {:usb_gadget, git: "https://github.com/nerves-project/usb_gadget.git"},
     ]
   end
 end
