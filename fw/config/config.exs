@@ -55,11 +55,27 @@ config :nerves_firmware_ssh,
 node_name = if Mix.env() != :prod, do: "fw"
 
 config :nerves_init_gadget,
-  ifname: "usb0",
-  address_method: :dhcpd,
-  mdns_domain: "nerves.local",
+  ifname: "eth0",
+  address_method: :dhcp,
+  mdns_domain: "hidattack.local",
   node_name: node_name,
   node_host: :mdns_domain
+
+config :ui, UiWeb.Endpoint,
+       url: [host: "localhost"],
+       http: [port: 80],
+       secret_key_base: "uvmC68bx4DuCusYPAqAQxTSI1t+CznXIXsiK1UIemH52bZXVlj/O2O0FxfY8R84H",
+       root: Path.dirname(__DIR__),
+       server: true,
+       render_errors: [view: UiWeb.ErrorView, accepts: ~w(html json)],
+       pubsub: [name: Nerves.PubSub, adapter: Phoenix.PubSub.PG2],
+       code_reloader: false
+
+config :phoenix, :json_library, Jason
+
+config :app, App.AttackProxy, [
+  gadget: App.G29Gadget
+]
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

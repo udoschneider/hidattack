@@ -1,0 +1,36 @@
+<main role="main">
+
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3">HID Attack UI</h1>
+      <p>This UI allows you to start different attacks against the IVI and steering wheel</p>
+    </div>
+  </div>
+
+
+  <div class="container">
+      <div class="row">
+        <a class="btn btn-success btn-lg btn-block" href="/attack?action=clear" role="button">Clear</a>
+      </div>
+      <div class="row">
+        <a class="btn btn-warning btn-lg btn-block" href="/attack?action=ransom" role="button">Ransom Note</a>
+      </div>
+      <div class="row">
+        <a class="btn btn-warning btn-lg btn-block" href="/attack?action=wiggle" role="button">Wiggle</a>
+      </div>
+      <div class="row">
+        <a class="btn btn-warning btn-lg btn-block" href="/attack?action=mirror" role="button">Mirror</a>
+      </div>
+  </div> <!-- /container -->
+
+  <div class="container">
+      <div class="row">
+        <a class="btn btn-danger btn-lg btn-block" href="/attack?action=reboot_ivi" role="button">Reboot IVI</a>
+      </div>
+      <div class="row">
+        <a class="btn btn-danger btn-lg btn-block" href="/attack?action=reboot_hid" role="button">Reboot HID</a>
+      </div>
+  </div> <!-- /container -->
+
+</main>
