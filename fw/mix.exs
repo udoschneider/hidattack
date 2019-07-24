@@ -1,7 +1,7 @@
 defmodule Fw.MixProject do
   use Mix.Project
 
-  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :bbb, :x86_64, :hidattack_bbb]
+  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :bbb, :x86_64]
 
   @app :fw
 
@@ -67,16 +67,16 @@ defmodule Fw.MixProject do
       {:nerves_system_rpi2, "~> 1.8", runtime: false, targets: :rpi2},
       {:nerves_system_rpi3, "~> 1.8", runtime: false, targets: :rpi3},
       {:nerves_system_rpi3a, "~> 1.8", runtime: false, targets: :rpi3a},
-      {:nerves_system_bbb, "~> 2.3", runtime: false, targets: :bbb},
+      # {:nerves_system_bbb, "~> 2.3", runtime: false, targets: :bbb},
       {:nerves_system_x86_64, "~> 1.8", runtime: false, targets: :x86_64},
 
       # {:hidattack_system_bbb, path: "../../hidattack_system_bbb", runtime: false, targets: :hidattack_bbb},
       {
-        :hidattack_system_bbb,
-        git: "git@github.com:krodelin/hidattack_system_bbb.git",
-        tag: "v2.1.3-us1",
+        :gadget_system_bbb,
+        git: "git@github.com:krodelin/gadget_system_bbb.git",
+        tag: "v2.3.0-us1",
         runtime: false,
-        targets: :hidattack_bbb
+        targets: :bbb
       },
       {:ui, path: "../ui"},
     ]
