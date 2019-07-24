@@ -31,6 +31,7 @@ defmodule App.MixProject do
       },
       {:usb_gadget, git: "https://github.com/nerves-project/usb_gadget.git"},
       {:sshex, "2.2.1"},
+      {:ease, "~> 0.2.0"},
     ]
   end
 end
