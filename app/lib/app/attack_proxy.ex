@@ -5,10 +5,9 @@ defmodule App.AttackProxy do
   require Logger
 
   @tick_hz 20
-  @tick_ms round(1_000 / @tick_hz)
+  @tick_duration round(1_000 / @tick_hz)
 
-  @frequency_change_ms 5_000
-  @amplitude_change_ms 5_000
+  @change_duration_ms 1_000
 
   @args Application.get_env(:app, __MODULE__)
   @gadget Keyword.fetch!(@args, :gadget) # @App.G29Gadget
@@ -17,17 +16,17 @@ defmodule App.AttackProxy do
     GenServer.start_link(__MODULE__, args, opts ++ [name: __MODULE__])
   end
 
-  def clear() do
-    wiggle(1, 0)
-    mirror(0, 1)
-  end
-
   def wiggle(f, a) do
     GenServer.cast(__MODULE__, {:wiggle, f, a})
   end
 
-  def mirror(f, a) do
-    GenServer.cast(__MODULE__, {:mirror, f, a})
+  def mirror(v) do
+    GenServer.cast(__MODULE__, {:mirror, v})
+  end
+
+  def clear() do
+    wiggle(0,0)
+    mirror(1)
   end
 
   ################################################################
@@ -42,13 +41,9 @@ defmodule App.AttackProxy do
       {
         :ok,
         %{
-          t: 0,
-          wiggle: {1, 0},
-          wiggle_c: {0, 0},
-          wiggle_t: {1, 0},
-          mirror: {0, 1},
-          mirror_c: {0, 0},
-          mirror_t: {0, 1}
+          wiggle: {0, 0, 0, 0, 0, 0},
+          mirror: {0, 0, 1, 1},
+          last_report: {0, nil},
         }
       }
     else
@@ -57,58 +52,53 @@ defmodule App.AttackProxy do
 
   end
 
-  def handle_info({:hidin, report}, %{t: t, wiggle: {wf, wa}, mirror: {mf, ma}} = state) do
-    # Logger.debug(fn -> "#{__MODULE__} IN (#{byte_size(report)} Bytes: #{inspect(report)})" end)
-
-    <<head :: binary - size(4), steering_angle :: little - size(16), tail :: binary>> = report
-    # Logger.debug(fn -> "#{__MODULE__} steering_angle #{steering_angle}" end)
-    steering_angle_f = (steering_angle - 32768) / 32768
-    # Logger.debug(fn -> "#{__MODULE__} steering_angle_f #{steering_angle_f}" end)
-
-    wiggle = :math.cos((t / 1000) * wf) * wa
-    mirror = :math.cos((t / 1000) * mf) * ma
-    new_steering_angle_f = (steering_angle_f * mirror) + wiggle
-
-    # Logger.debug(fn -> "#{__MODULE__} new_steering_angle_f #{new_steering_angle_f}" end)
-    new_steering_angle = (new_steering_angle_f * 32768 + 32768)
-                         |> Kernel.round()
-                         |> Kernel.min(65535)
-                         |> Kernel.max(0)
-    # Logger.debug(fn -> "#{__MODULE__} new_steering_angle #{new_steering_angle}" end)
-    report = <<head :: binary - size(4), new_steering_angle :: little - size(16), tail :: binary>>
-    @gadget.output(report)
-    {:noreply, state}
+  def handle_info({:hidin, report}, state) do
+    report
+    |> compromise_report(state)
+    |> gadget_send()
+    {:noreply, %{state | last_report: {current_time(), report}}}
   end
 
   def handle_info({:hidout, report}, state) do
     # Logger.debug(fn -> "#{__MODULE__} OUT (#{byte_size(report)} Bytes: #{inspect(report)})" end)
-    App.G29Device.output(report)
+    device_send(report)
     {:noreply, state}
   end
 
-  def handle_info(:tick, state) do
-    old_t = state.t
-    new_t = rem(round(old_t + @tick_ms), 5 * 60 * 1000)
-    {w, wc} = correction(state.wiggle, state.wiggle_t, state.wiggle_c)
-    {m, mc} = correction(state.mirror, state.mirror_t, state.mirror_c)
+  def handle_info(:tick, %{last_report: {last_send, report}} = state) do
     schedule_tick()
-    {:noreply, %{state | t: new_t, wiggle: w, wiggle_c: wc, mirror: m, mirror_c: mc}}
+    t = current_time()
+    if (t - last_send) > @tick_duration do
+      report
+      |> compromise_report(state)
+      |> gadget_send()
+      {:noreply, %{state | last_report: {t, report}}}
+    else
+      {:noreply, state}
+    end
   end
 
-  def handle_cast({:wiggle, tf, ta}, %{wiggle: {f, a}} = state) do
-    df = tf - f
-    da = ta - a
-    cf = df / (@frequency_change_ms / @tick_ms)
-    ca = da / (@amplitude_change_ms / @tick_ms)
-    {:noreply, %{state | wiggle_t: {tf, ta}, wiggle_c: {cf, ca}}}
+  def handle_cast(
+        {:wiggle, end_frequency, end_amplitude},
+        %{wiggle: {_, _, _, start_frequency, _, start_amplitude}} = state
+      ) do
+    start_time = current_time()
+    end_time = start_time + @change_duration_ms
+    new_state = %{
+      state |
+      wiggle: {start_time, end_time, start_frequency, end_frequency, start_amplitude, end_amplitude}
+    }
+    {:noreply, new_state}
   end
 
-  def handle_cast({:mirror, tf, ta}, %{mirror: {f, a}} = state) do
-    df = tf - f
-    da = ta - a
-    cf = df / (@frequency_change_ms / @tick_ms)
-    ca = da / (@amplitude_change_ms / @tick_ms)
-    {:noreply, %{state | mirror_t: {tf, ta}, mirror_c: {cf, ca}}}
+  def handle_cast({:mirror, end_value}, %{mirror: {_, _, _, start_value}} = state) do
+    start_time = current_time()
+    end_time = start_time + @change_duration_ms
+    new_state = %{
+      state |
+      mirror: {start_time, end_time, start_value, end_value}
+    }
+    {:noreply, new_state}
   end
 
   ################################################################
@@ -151,15 +141,83 @@ defmodule App.AttackProxy do
   end
 
   defp schedule_tick() do
-    Process.send_after(self(), :tick, @tick_ms)
+    Process.send_after(self(), :tick, @tick_duration)
   end
 
-  defp correction({f, a}, {tf, ta}, {cf, ca}) do
-    df = tf - f
-    da = ta - a
-    {nf, ncf} = if abs(df) > 0.001, do: {f + cf, cf}, else: {tf, 0}
-    {na, nca} = if abs(da) > 0.001, do: {a + ca, ca}, else: {ta, 0}
-    {{nf, na}, {ncf, nca}}
+  defp calculate_wiggle(t, state) do
+    {start_time, end_time, start_frequency, end_frequency, start_amplitude, end_amplitude} = state
+    if t < end_time do
+      {
+        Ease.ease_in_out_quad(
+          t - start_time,
+          start_frequency,
+          end_frequency - start_frequency,
+          end_time - start_time
+        ),
+        Ease.ease_in_out_quad(
+          t - start_time,
+          start_amplitude,
+          end_amplitude - start_amplitude,
+          end_time - start_time
+        )
+      }
+    else
+      {end_frequency, end_amplitude}
+    end
   end
+
+  defp calculate_mirror(t, state) do
+    {start_time, end_time, start_value, end_value} = state
+    if t < end_time do
+      Ease.ease_in_out_quad(
+        t - start_time,
+        start_value,
+        end_value - start_value,
+        end_time - start_time
+      )
+    else
+      end_value
+    end
+  end
+
+  defp current_time() do
+    :os.system_time(:millisecond)
+  end
+
+  defp compromise_report(nil, state) do
+    t = current_time()
+    {frequency, amplitude} = calculate_wiggle(t, state.wiggle)
+    mirror = calculate_mirror(t, state.mirror)
+    Logger.debug(fn -> "Wiggle #{frequency}Hz #{amplitude} - Mirror #{mirror}" end)
+    nil
+  end
+
+  defp compromise_report(report, state) do
+
+    t = current_time()
+    {frequency, amplitude} = calculate_wiggle(t, state.wiggle)
+    mirror = calculate_mirror(t, state.mirror)
+    Logger.debug(fn -> "Wiggle #{frequency}Hz #{amplitude} - Mirror #{mirror}" end)
+
+    <<head :: binary - size(4), steering_angle :: little - size(16), tail :: binary>> = report
+
+    steering_angle_f = (steering_angle - 32768) / 32768
+
+    wiggle = :math.cos((t / 1000) * frequency) * amplitude
+    mirror = :math.cos((t / 1000) * mirror)
+    new_steering_angle_f = (steering_angle_f * mirror) + wiggle
+
+    new_steering_angle = (new_steering_angle_f * 32768 + 32768)
+                         |> Kernel.round()
+                         |> Kernel.min(65535)
+                         |> Kernel.max(0)
+    <<head :: binary - size(4), new_steering_angle :: little - size(16), tail :: binary>>
+  end
+
+  defp gadget_send(nil), do: nil
+
+  defp gadget_send(report), do: @gadget.output(report)
+
+  defp device_send(report), do: App.G29Device.output(report)
 
 end
