@@ -26,7 +26,7 @@ defmodule App.MixProject do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
       {
         :hidraw,
-        git: "git@github.com:krodelin/hidraw.git",
+        git: "https://github.com/krodelin/hidraw.git",
         tag: "v0.2.1-u1"
       },
       {:usb_gadget, git: "https://github.com/nerves-project/usb_gadget.git"},
