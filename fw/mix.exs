@@ -73,7 +73,7 @@ defmodule Fw.MixProject do
       # {:hidattack_system_bbb, path: "../../hidattack_system_bbb", runtime: false, targets: :hidattack_bbb},
       {
         :gadget_system_bbb,
-        git: "git@github.com:krodelin/gadget_system_bbb.git",
+        git: "https://github.com/krodelin/gadget_system_bbb.git",
         tag: "v2.3.0-us1",
         runtime: false,
         targets: :bbb
