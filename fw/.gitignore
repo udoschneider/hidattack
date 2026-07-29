@@ -16,3 +16,11 @@
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 /fw.img*
+
+# SSH private keys must never be committed. Only the .pub half belongs here,
+# since config.exs reads it into :nerves_firmware_ssh authorized_keys.
+/hidattack_rsa
+id_rsa
+id_ecdsa
+id_ed25519
+*.pem
